@@ -10,18 +10,19 @@ bool Settings::Radar::legit = false;
 bool Settings::Radar::visibilityCheck = false;
 bool Settings::Radar::smokeCheck = false;
 bool Settings::Radar::InGame::enabled = false;
+bool Settings::Radar::name = false;
 TeamColorType Settings::Radar::teamColorType = TeamColorType::RELATIVE_;
-HealthColorVar Settings::Radar::enemyColor = ImColor(192, 32, 32, 255);
-HealthColorVar Settings::Radar::enemyVisibleColor = ImColor(192, 32, 32, 255);
-HealthColorVar Settings::Radar::allyColor = ImColor(32, 64, 192, 255);
-HealthColorVar Settings::Radar::allyVisibleColor = ImColor(32, 64, 192, 255);
-HealthColorVar Settings::Radar::tColor = ImColor(192, 128, 64, 255);
-HealthColorVar Settings::Radar::tVisibleColor = ImColor(192, 128, 64, 255);
-HealthColorVar Settings::Radar::ctColor = ImColor(64, 128, 192, 255);
-HealthColorVar Settings::Radar::ctVisibleColor = ImColor(64, 128, 192, 255);
-ColorVar Settings::Radar::bombColor = ImColor(192, 192, 64, 255);
-ColorVar Settings::Radar::bombDefusingColor = ImColor(192, 192, 64, 255);
-ColorVar Settings::Radar::defuserColor = ImColor(32, 192, 192, 255);
+HealthColorVar Settings::Radar::enemyColor = ImColor(255, 0, 0, 255);
+HealthColorVar Settings::Radar::enemyVisibleColor = ImColor(255, 255, 0, 255);
+HealthColorVar Settings::Radar::allyColor = ImColor(0, 0, 255, 255);
+HealthColorVar Settings::Radar::allyVisibleColor = ImColor(0, 255, 0, 255);
+HealthColorVar Settings::Radar::tColor = ImColor(255, 0, 0, 255);
+HealthColorVar Settings::Radar::tVisibleColor = ImColor(255, 255, 0, 255);
+HealthColorVar Settings::Radar::ctColor = ImColor(0, 0, 255, 255);
+HealthColorVar Settings::Radar::ctVisibleColor = ImColor(0, 255, 0, 255);
+ColorVar Settings::Radar::bombColor = ImColor(156, 39, 176, 255);
+ColorVar Settings::Radar::bombDefusingColor = ImColor(213, 0, 249, 255);
+ColorVar Settings::Radar::defuserColor = ImColor(49, 27, 146, 255);
 float Settings::Radar::iconsScale = 4.5f;
 
 std::set<int> visible_players;
@@ -76,6 +77,7 @@ Vector2D WorldToRadar(const Vector location, const Vector origin, const Vector a
 	return Vector2D(xnew_diff, ynew_diff);
 }
 
+
 static void SquareConstraint(ImGuiSizeConstraintCallbackData *data)
 {
 	data->DesiredSize = ImVec2(max(data->DesiredSize.x, data->DesiredSize.y), max(data->DesiredSize.x, data->DesiredSize.y));
@@ -127,15 +129,14 @@ ImColor Radar::GetRadarPlayerColor(C_BasePlayer* player, bool visible)
 	return playerColor;
 }
 
+static int currentPlayer = -1;
+const char* player_Name;
 void Radar::RenderWindow()
 {
 	if (!Settings::ESP::enabled)
 		return;
 
-	if (!Settings::Radar::enabled)
-		return;
-
-	if (!pEngine->IsInGame())
+	if (!Settings::Radar::enabled || !pEngine->IsInGame())
 		return;
 
 	ImGui::SetNextWindowSize(ImVec2(256, 256), ImGuiSetCond_FirstUseEver);
@@ -154,6 +155,7 @@ void Radar::RenderWindow()
 		draw_list->AddLine(ImVec2(winpos.x + winsize.x * 0.5f, winpos.y + winsize.y * 0.5f), ImVec2(winpos.x, winpos.y), ImColor(90, 90, 90, 255), 1.f);
 		draw_list->AddLine(ImVec2(winpos.x + winsize.x * 0.5f, winpos.y + winsize.y * 0.5f), ImVec2(winpos.x + winsize.x, winpos.y), ImColor(90, 90, 90, 255), 1.f);
 
+
 		C_BasePlayer* localplayer = (C_BasePlayer*)pEntityList->GetClientEntity(pEngine->GetLocalPlayer());
 		if (!localplayer)
 		{
@@ -166,6 +168,7 @@ void Radar::RenderWindow()
 		
 		// draw localplayer
 		draw_list->AddCircleFilled(ImVec2(winpos.x + winsize.x * 0.5f, winpos.y + winsize.y * 0.5f), Settings::Radar::iconsScale, ImColor(255, 255, 255, 255));
+
 
 		float scale = Settings::Radar::iconsScale;
 
@@ -196,6 +199,8 @@ void Radar::RenderWindow()
 
 				if (player->GetTeam() != localplayer->GetTeam() && !Settings::Radar::enemies)
 					continue;
+
+		
 
 				bool bIsVisible = player->GetTeam() == localplayer->GetTeam() || (Settings::Radar::visibilityCheck && (*player->GetSpotted() || std::find(visible_players.begin(), visible_players.end(), i) != visible_players.end()));
 				if (!bIsVisible && Settings::Radar::legit)
@@ -235,10 +240,23 @@ void Radar::RenderWindow()
 				Vector2D left = arrowBase + arrowWidth / (2 * length) * normal;
 				Vector2D right = arrowBase + -arrowWidth / (2 * length) * normal;
 
+	
+
 				draw_list->AddTriangleFilled(ImVec2(winpos.x + left.x, winpos.y + left.y),
 					ImVec2(winpos.x + right.x, winpos.y + right.y),
 					ImVec2(winpos.x + dirArrowPos.x, winpos.y + dirArrowPos.y),
 					ImColor(230, 230, 230));
+
+			
+				if (Settings::Radar::name)
+				{
+					IEngineClient::player_info_t entityInformation;
+					pEngine->GetPlayerInfo(i, &entityInformation);
+					//This is not the right way but it works.
+					draw_list->AddText(ImVec2(winpos.x + dirArrowPos.x - 0.155, winpos.y + dirArrowPos.y), ImColor(230, 230, 230), entityInformation.name);
+				}
+			
+											
 			}
 			else if (classId == EClassIds::CC4)
 			{
