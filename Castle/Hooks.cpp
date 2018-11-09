@@ -53,6 +53,22 @@ namespace Hooks
 		Hitmarkers::Paint();
 		//NadePrediction();
 	}
+	
+		bool ShouldDrawFogs(void* ecx) {
+		if (!Settings::NoFog::enabled)
+			return ClientModeHook->GetOriginalFunction<ShouldDrawFogFn>(17)(ecx);
+
+		/* Skybox Fog is separate */
+		IMatRenderContext *renderCtx = pMaterial->GetRenderContext();
+		renderCtx->FogMode(MaterialFogMode_t::MATERIAL_FOG_NONE);
+		renderCtx->Release();
+		/* Return false for normal fog */
+		return false;
+	}
+
+	bool ShouldDrawFog(void *ecx) {
+		return ShouldDrawFogs(ecx);
+	}
 	bool __stdcall hCreateMove(float frametime, CUserCmd* cmd)
 	{
 		ClientModeHook->GetOriginalFunction<CreateMoveFn>(24)(pClientMode, frametime, cmd);
