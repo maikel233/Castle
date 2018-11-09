@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace Teleport
-{
-	void CreateMove(CUserCmd* cmd);
-}
+//namespace Teleport
+//{
+//	void CreateMove(CUserCmd* cmd);
+//}
