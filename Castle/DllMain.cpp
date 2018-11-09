@@ -92,6 +92,7 @@ DWORD WINAPI Stage1(LPVOID hInstance)
 
 	ClientModeHook = std::make_unique<VMTHook>(pClientMode);
 	ClientModeHook->HookFunction(Hooks::hCreateMove, 24);
+	ClientModeHook->HookFunction((void*)Hooks::ShouldDrawFog, 17);
 	ClientModeHook->HookFunction(Hooks::hOverrideView, 18);
 	ClientModeHook->HookFunction(Hooks::hGetViewModelFOV, 35);
 
