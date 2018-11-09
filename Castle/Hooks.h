@@ -13,6 +13,7 @@ typedef long(__stdcall* EndSceneFn)(IDirect3DDevice9* device);
 typedef long(__stdcall* ResetFn)(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* pp);
 typedef long(__stdcall* PresentFn)(IDirect3DDevice9* device, const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion);
 typedef bool(__thiscall* CreateMoveFn)(IClientMode*, float, CUserCmd*);
+typedef bool(*ShouldDrawFogFn)(void*);
 typedef void(__thiscall* RunCommand_t)(IPrediction*, IClientEntity*, CUserCmd*, void*);
 typedef void(__thiscall* PaintTraverseFn)(void*, unsigned int, bool, bool);
 typedef void(__thiscall* DrawModelExecuteFn)(void*, void*, const DrawModelState_t&, const ModelRenderInfo_t&, matrix3x4*);
@@ -30,6 +31,7 @@ namespace Hooks
 {
 	HRESULT WINAPI hPresent(IDirect3DDevice9* pDevice, RECT* pSourceRect, RECT* pDestRect, HWND hDestWindowOverride, RGNDATA* pDirtyRegion);
 	HRESULT WINAPI hReset(LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
+	bool ShouldDrawFog(void* ecx);
 	bool __stdcall hCreateMove(float frametime, CUserCmd* cmd);
 	void __stdcall Hooked_RunCommand(IClientEntity* pEntity, CUserCmd* pCmd, void* pMoveHelper);
 	void __stdcall hPaintTraverse(unsigned int VGUIPanel, bool forcerepaint, bool allowforce);
